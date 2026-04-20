@@ -3,42 +3,47 @@
 # 被 DMO agent 在每次分析前读取，无需改 trigger
 
 account:
-  size_usd: 12540          # 含 $10K dry powder 后
-  dry_powder_usd: 10000
-  risk_per_trade_pct: 0.02  # 每笔最大风险 2%
+  total_assets_usd: 2541.53       # 证券市值 + 现金
+  securities_value_usd: 2185.59   # 持仓市值
+  cash_total_usd: 353.18          # 现金总值
+  cash_sweep_usd: 249.21          # 其中 Cash Sweep 余额（享 3.35% 年化）
+  cash_sweep_apy: 0.0335
+  dry_powder_pending_usd: 10000   # 后续将注入 Cash Sweep，可用于投资
+  risk_per_trade_pct: 0.02        # 每笔最大风险 2%
 
+# 真实持仓（shares × cost_basis = 建仓成本）
 holdings:
   - ticker: NVDA
-    allocation_pct: 21.3
-    cost_basis: 464.97
+    shares: 2.31351
+    cost_basis: 185.464
     thesis: "AI Capex core — 持有不加仓"
   - ticker: SPY
-    allocation_pct: 33.5
-    cost_basis: 732.29
+    shares: 1.03456
+    cost_basis: 695.973
     thesis: "宽基压舱石 — 52周高点不加"
   - ticker: AAPL
-    allocation_pct: 4.8
-    cost_basis: 104.77
+    shares: 0.38772
+    cost_basis: 257.88
     thesis: "财报 4/30 节点 — 毛利率 <48% 减半"
   - ticker: META
-    allocation_pct: 5.7
-    cost_basis: 673.05
+    shares: 0.1829
+    cost_basis: 673.045
     thesis: "财报 4/29 — Miss+Capex 超 清仓"
   - ticker: TSM
-    allocation_pct: 5.6
-    cost_basis: 122.67
+    shares: 0.33763
+    cost_basis: 367.506
     thesis: "AI 代工 — 智钱在撤，持有不加"
   - ticker: CVX
-    allocation_pct: 8.4
+    shares: 1
     cost_basis: 191.69
     thesis: "3 层共振（Buffett+Renaissance+技术超卖）— 加仓至 12-14%"
   - ticker: GLD
-    allocation_pct: 9.4
-    cost_basis: 205.35
+    shares: 0.46054
+    cost_basis: 434.224
     thesis: "避险 — 不加"
   - ticker: SCHD
-    allocation_pct: 11.4
-    cost_basis: 248.88
+    shares: 8
+    cost_basis: 30.75
     thesis: "红利防御 — 加仓至 15-17%"
 
 watchlist:
