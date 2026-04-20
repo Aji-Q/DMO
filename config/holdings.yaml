@@ -1,69 +1,138 @@
 # DMO 持仓 & 观察列表配置
-# Updated: 2026-04-20
+# Updated: 2026-04-20 (v3 — 含 Form 4 + 期权层信号修订)
 # 被 DMO agent 在每次分析前读取，无需改 trigger
 
 account:
   total_assets_usd: 2541.53       # 证券市值 + 现金
-  securities_value_usd: 2185.59   # 持仓市值
-  cash_total_usd: 353.18          # 现金总值
-  cash_sweep_usd: 249.21          # 其中 Cash Sweep 余额（享 3.35% 年化）
+  securities_value_usd: 2185.59
+  cash_total_usd: 353.18
+  cash_sweep_usd: 249.21
   cash_sweep_apy: 0.0335
-  dry_powder_pending_usd: 10000   # 后续将注入 Cash Sweep，可用于投资
-  risk_per_trade_pct: 0.02        # 每笔最大风险 2%
+  dry_powder_pending_usd: 10000
+  risk_per_trade_pct: 0.02
 
 # 真实持仓（shares × cost_basis = 建仓成本）
+# thesis 字段反映 v3 五层信号综合判断
 holdings:
   - ticker: NVDA
     shares: 2.31351
     cost_basis: 185.464
-    thesis: "AI Capex core — 持有不加仓"
+    thesis: "持有不加仓 — ATM 期权双向大额对冲（陷阱 G：机构预期波动事件），RSI 72 超买"
+    signals_snapshot:
+      L1_tech: "🟢 多头 RSI 72"
+      L2_13F: "⚠️ 分裂 (Bridgewater +54% / Renaissance -85%)"
+      L3_insider: "🔴 净卖 $208M（90d）"
+      L4_short: "待补"
+      L5_options: "⚠️ ATM 双向对冲（陷阱 G）"
+
   - ticker: SPY
     shares: 1.03456
     cost_basis: 695.973
-    thesis: "宽基压舱石 — 52周高点不加"
+    thesis: "宽基压舱石 — 52周高点不加；0DTE 交易主导当日 vol，忽略"
+    signals_snapshot:
+      L1_tech: "🟢 多头 RSI 72 超买"
+      L5_options: "— 0DTE 噪音"
+
   - ticker: AAPL
     shares: 0.38772
     cost_basis: 257.88
-    thesis: "财报 4/30 节点 — 毛利率 <48% 减半"
+    thesis: "散户 vs 机构分歧（陷阱 E）— 期权 P/C 0.38 看多 + 内部人/13F 全卖 → 按机构走，财报毛利率 <48% 减半"
+    signals_snapshot:
+      L1_tech: "🟢 多头"
+      L2_13F: "🔴 全员减 (Berkshire -4% / Bridgewater -16% / Renaissance -7%)"
+      L3_insider: "🔴 Cook 卖 $7M + 净 $24M"
+      L4_short: "待补"
+      L5_options: "🟢 P/C 0.38 但陷阱 E"
+      PEAD: "T+5 4/8 正漂移（coin flip），8/8 beat 记录"
+      implied_move: "±5.0%"
+
   - ticker: META
     shares: 0.1829
     cost_basis: 673.045
-    thesis: "财报 4/29 — Miss+Capex 超 清仓"
+    thesis: "财报 4/29 — Miss + Capex >$135B 清仓；gap down <7.6% (implied move) 是噪音，>10% 才是真警"
+    signals_snapshot:
+      L1_tech: "🟡 死叉修复中"
+      L2_13F: "⚠️ 分裂（Ackman NEW / Burry EXIT / Bridgewater -46%）"
+      L3_insider: "🔴 CFO Li 连抛 $105M"
+      L4_short: "待补"
+      L5_options: "⚠️ 0DTE 看涨狂欢（陷阱 F）"
+      PEAD: "Beat 率 7/8，平均 T+5 -0.35%（分化大：-15% 到 +11%）"
+      implied_move: "±7.6%"
+
   - ticker: TSM
     shares: 0.33763
     cost_basis: 367.506
-    thesis: "AI 代工 — 智钱在撤，持有不加"
+    thesis: "AI 代工 — 智钱在撤，期权 P/C 1.25 偏空，持有不加"
+    signals_snapshot:
+      L1_tech: "🟢 多头"
+      L2_13F: "🔴 缓退（Third Point -61% / Tiger -19% / Renaissance -13%）"
+      L3_insider: "待补"
+      L4_short: "待补"
+      L5_options: "🔴 P/C 1.25 + 地缘对冲"
+
   - ticker: CVX
     shares: 1
     cost_basis: 191.69
-    thesis: "3 层共振（Buffett+Renaissance+技术超卖）— 加仓至 12-14%"
+    thesis: "降级持有不加 — 13F Double-Buy vs C-suite 集中抛售 $155M（CEO $51M + CLO $27M + CFO $5M），回测 Double-Buy 在 CVX 上历史 -1.8%/-2.6% alpha"
+    signals_snapshot:
+      L1_tech: "🟡 盘整，贴 EMA200"
+      L2_13F: "🟢🟢 Double-Buy（Berkshire +7% / Renaissance +424%）"
+      L3_insider: "🔴 C-suite $83M + 净 $155M"
+      L4_short: "待补"
+      L5_options: "— 期权淡漠（3 异常）"
+      PEAD: "Beat 率 6/8，平均 T+5 +0.24%"
+      implied_move: "±4.7%"
+      backtest_history: "2025-02-14 Single-Buy -6.3% / 2025-08-14 Double-Buy -1.8% / 2026-02-17 Double-Buy -2.6%"
+
   - ticker: GLD
     shares: 0.46054
     cost_basis: 434.224
-    thesis: "避险 — 不加"
+    thesis: "避险 — 抛物线 FOMO 出现在期权看涨上，不加"
+    signals_snapshot:
+      L1_tech: "🟢 多头 BB 74%"
+      L5_options: "🟡 全是看涨 call（散户 FOMO）"
+
   - ticker: SCHD
     shares: 8
     cost_basis: 30.75
-    thesis: "红利防御 — 加仓至 15-17%"
+    thesis: "红利防御 — 加仓至 15-17%（dry powder $500 首批）"
+    signals_snapshot:
+      L1_tech: "🟢 多头"
+      L5_options: "— 极稀"
 
 watchlist:
   candidates:
     - ticker: MU
-      rationale: "三派共振（Bridgewater 新建 + Renaissance +151% + Tepper +250%），AI HBM 周期"
+      rationale: "近 4 层共振候选 — 13F 三派（Bridgewater 新建 + Renaissance +151% + Tepper +250%）+ 期权 P/C 0.68 偏多且 4/24 $535 OTM call Vol/OI 11.4x（有机构赌 3 天涨 20%）"
       target_entry: "$440-450 或回踩 $399 EMA50"
+      signals_snapshot:
+        L2_13F: "🟢🟢🟢 Triple（回测 N=2 需谨慎但方向性够）"
+        L5_options: "🟢 P/C 0.68 + 激进 call"
+      historical_alpha: "2025-08-14 Single-Buy +92.7%（最大赢家）"
+
     - ticker: OXY
-      rationale: "Buffett 264.9M 坚守 + 深度超卖 (BB 12%)"
-      target_entry: "$54-55 单笔"
+      rationale: "Buffett 264.9M 坚守 + 期权 P/C 0.39 看多 + BB 12% 深度超卖；历史 Single-Buy 分化（-10%/-20%/-6%），降级为小仓"
+      target_entry: "$54-55 单笔 $300"
+      signals_snapshot:
+        L2_13F: "🟡 Berkshire only（陷阱 D 单信源）"
+        L5_options: "🟢 P/C 0.39 + call"
+      historical_alpha: "Single-Buy 历史 3 次全负（-10%/-20%/-6%）"
+
     - ticker: AMD
-      rationale: "Renaissance +142%，但 RSI 77 过热，等回踩"
-      target_entry: "$230-240"
+      rationale: "不追 — RSI 77 过热 + 期权 Top 5 异常里 4 个 ITM Put = 机构在做空/对冲"
+      target_entry: "不在当前价入（等 $230-240 回踩）"
+      signals_snapshot:
+        L1_tech: "🔴 RSI 77 过热"
+        L2_13F: "🟢 Renaissance +142%"
+        L5_options: "🔴 4 个 ITM Put 对冲"
+
   traps:
     - ticker: JNJ
-      rationale: "超卖但 Renaissance EXIT + Bridgewater -23% — 价值陷阱"
+      rationale: "超卖但 Renaissance EXIT + Bridgewater -23% — 陷阱 A（价值陷阱）"
     - ticker: XOM
-      rationale: "能源板块里被量化放弃，CVX/OXY 才是首选"
+      rationale: "能源里被量化放弃，CVX/OXY 是首选"
     - ticker: MSTR
-      rationale: "RSI 74 + BB 115% 放量过热，本质 BTC 代理"
+      rationale: "陷阱 B（RSI 74 + BB 115% 过热）+ 回测 Single-Buy 两次 -34%/-50% 吓人"
     - ticker: GOOGL
       rationale: "Ackman -39% 大减 + Renaissance -91%，不接飞刀"
 
@@ -76,17 +145,25 @@ expansion_universe:
   hedge: [GLD, SLV, TLT, BND]
   speculative: [MSTR, COIN, PLTR, SMCI]
 
-# 财报日历（手动维护，关键节点）
+# 财报日历 + v3 新增 implied move 锚点
 earnings_calendar:
   - date: "2026-04-29"
     ticker: META
     importance: high
     key_metrics: "Capex 2026 指引（115-135B 是分水岭），广告增速"
+    implied_move_pct: 7.6
+    noise_threshold: "±5% 以内为噪音；>±10% 为真意外"
+
   - date: "2026-04-30"
     ticker: AAPL
     importance: high
     key_metrics: "毛利率（<48% 减半触发），iPhone 中国"
+    implied_move_pct: 5.0
+    noise_threshold: "±3% 以内为噪音；>±7% 为真意外"
+
   - date: "2026-05-01"
     ticker: CVX
     importance: medium
-    key_metrics: "Permian 产量 + FCF @ Brent 假设"
+    key_metrics: "Permian 产量 + FCF @ Brent 假设；关注 CEO 在电话会上对内部人大额减持的解释"
+    implied_move_pct: 4.7
+    noise_threshold: "±3% 以内为噪音；>±7% 为真意外"
