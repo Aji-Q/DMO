@@ -6,61 +6,97 @@
 
 ```
 DMO/
-├── scripts/                            # 扫描工具
-│   ├── portfolio_scan.py               # 技术面扫描（yfinance + curl_cffi）
-│   └── smart_money_scan.py             # 13F 机构持仓追踪（SEC EDGAR）
-└── reports/                            # 分析报告（按日期命名）
-    ├── 2026-04-20_v1_portfolio_analysis.md   # 初版 8 只持仓分析（文本搜索）
-    ├── 2026-04-20_kline_correction.md        # K 线实测修正 v1 的偏差
-    ├── 2026-04-20_13f_smart_money.md         # 13F 机构持仓原始输出 + 解读
-    ├── 2026-04-20_deep_dive_CVX_META.md      # CVX/META 深度分析（K线+13F融合）
-    └── 2026-04-20_v2_opportunity_radar.md    # 扩展版机会雷达（40 只股票扫描）
+├── scripts/                        # 扫描工具
+│   ├── portfolio_scan.py           # 技术面扫描（EMA/RSI/ATR/布林带）
+│   ├── smart_money_scan.py         # 13F 机构持仓 Q-over-Q（45 天延迟）
+│   ├── insider_scan.py             # Form 4 内部人交易（2 天延迟）
+│   ├── earnings_setup.py           # 财报窗口：隐含波动 + 历史 beat/miss + PEAD
+│   └── backtest_resonance.py       # 验证 🟢🟢🟢 共振信号的历史 alpha
+├── config/
+│   └── holdings.yaml               # 持仓、观察池、扩展宇宙、财报日历
+├── docs/
+│   └── METHODOLOGY_v2.md           # DMO v2 方法论
+└── reports/                        # 自动归档的分析报告（按日期）
 ```
 
-## 脚本使用
+## 脚本一览
 
-### 前置环境（Mac）
+### 1. `portfolio_scan.py` — 实时技术面
+```bash
+python3 scripts/portfolio_scan.py            # 默认 8 只持仓
+python3 scripts/portfolio_scan.py NVDA,META  # 自定义
+```
+输出：EMA50/EMA200、RSI、ATR、趋势、ATR 止损、BB%、Vol 比。
+数据：yfinance（需 `curl_cffi` 绕 Yahoo 反爬）。
+
+### 2. `smart_money_scan.py` — 13F 机构持仓变动
+```bash
+python3 scripts/smart_money_scan.py
+```
+覆盖 8 基金（Berkshire / Pershing / Third Point / Renaissance / Bridgewater / Appaloosa / Scion / Tiger Global）最近 2 季度。
+数据：SEC EDGAR 13F-HR XML。**局限：45 天披露延迟**。
+
+### 3. `insider_scan.py` — Form 4 内部人交易（新）
+```bash
+python3 scripts/insider_scan.py [tickers] [lookback_days]
+# 默认: 持仓+候选池，90 天回看
+```
+**补足 13F 延迟**：Form 4 要求 2 个交易日内披露。CEO/CFO 开盘价买入（code=P）是所有合法数据里最快的强信号。
+输出：每只股票 90 天内 buy/sell 总额、C-suite 高管买入明细。
+数据：SEC EDGAR。
+
+### 4. `earnings_setup.py` — 财报专项（新）
+```bash
+python3 scripts/earnings_setup.py META,AAPL,CVX
+```
+三件事：
+- **Implied Move**：从 ATM 跨式期权算市场预期的财报后涨跌幅
+- **Beat/Miss 历史**：过去 8 季度 EPS surprise + beat 率
+- **Post-Earnings Drift (PEAD)**：T+5 相对 T-1 的价格漂移
+用于"META 跌 5% 是正常噪声还是真警讯"这类问题。
+
+### 5. `backtest_resonance.py` — 方法论自证（新）
+```bash
+python3 scripts/backtest_resonance.py [n_quarters] [universe]
+# 默认: 8 季度 + 14 只股票 universe
+```
+回测 `🟢🟢🟢 三派共振 / 🟢🟢 双派 / 🟡 单派 / 🔴 多派撤退` 这四类信号的 3 个月前瞻 alpha vs SPY。**初次运行需 2-3 分钟**（拉 64+ 个 13F 文件）。
+
+解读：
+- Triple-Buy 平均 alpha > 0 且 hit rate > 60% → 方法论有效
+- Triple-Buy 平均 alpha ≈ 0 → 伪 alpha，退化成 SPY beta
+- Triple-Buy 平均 alpha < 0 → 反向信号，立刻停用
+
+## 前置环境
 
 ```bash
 python3 -m pip install --upgrade yfinance curl_cffi pandas
 ```
-
 要求：`yfinance >= 0.2.50`，`curl_cffi >= 0.7`（Yahoo 2025 反爬必需）。
-
-### 技术面扫描
-
-```bash
-# 默认扫描 8 只持仓
-python3 scripts/portfolio_scan.py
-
-# 自定义
-python3 scripts/portfolio_scan.py NVDA,META,TSLA
-```
-
-输出：EMA50/EMA200、RSI、ATR、趋势判断、ATR 止损、布林带位置、成交量比。
-
-### 13F 智钱追踪
-
-```bash
-# 默认扫描 8 个基金对 5 只股票的最近 2 个季度变动
-python3 scripts/smart_money_scan.py
-
-# 自定义
-python3 scripts/smart_money_scan.py MU,OXY,AMD
-```
-
-数据源：SEC EDGAR 官方 13F-HR XML。覆盖基金：Berkshire、Scion、Pershing、Appaloosa、Bridgewater、Renaissance、Third Point、Tiger Global。
 
 ## 方法论
 
-1. **每次分析 = 当前持仓扫描 + 扩展股票池扫描**，找机会 ≠ 盯现有持仓
-2. **三层证据共振**：技术面 + 智钱层 + 基本面，三层同向才上硬结论
-3. **派系共振识别**：价值派 + 量化派同向 = 最罕见信号；主观派 vs 量化派分裂 = 不决策
-4. **财报周降级规则**：财报 ±3 天内，所有结论降到"摇摆区"
-5. **纪律书机制**：每次分析产出可执行触发点清单，自查执行
+完整 v2 方法论见 [`docs/METHODOLOGY_v2.md`](docs/METHODOLOGY_v2.md)。核心：
+
+1. **分析 = 持仓 + 扩展池**，找机会 ≠ 盯现有持仓
+2. **多层证据共振**：技术面 🟢 + 智钱层 🟢🟢/🟢🟢🟢 + 内部人 🔥 + 基本面 → 硬结论
+3. **派系分级**：价值派（Buffett/Ackman/Loeb）+ 量化派（Renaissance/Bridgewater）+ 主观派（Tepper/Burry/Tiger）
+4. **财报周降级**：±3 天内所有结论降到摇摆区；先看 `earnings_setup.py` 的 implied move
+5. **纪律机制**：每次分析产出可执行触发点清单
 
 ## 数据限制
 
-- 13F 有 45 天披露延迟
-- yfinance 免费数据无盘前盘后、无期权链、无暗池
-- 只覆盖美股多头持仓，空头 / 期权 / 国际头寸看不到
+| 数据源 | 延迟 | 用途 | 替代方案 |
+|---|---|---|---|
+| yfinance K 线 | 实时（15 分钟）| 技术面 | 无必要升级 |
+| SEC 13F-HR | 45 天 | 基金建仓/清仓趋势 | — |
+| SEC Form 4 | 2 天 | 内部人交易 | 唯一的高速信号 |
+| yfinance 期权链 | 盘中 | Implied Move | CBOE DataShop（付费） |
+| 暗池数据 | — | 无 | Unusual Whales（付费） |
+
+## 自动化
+
+两个 claude.ai Remote Triggers（云端运行，不依赖本地设备）：
+
+- **DMO-Weekday-Tech-Scan**：工作日 17:00 ET，跑 `portfolio_scan.py` 检异常 → Gmail
+- **DMO-Weekly-Deep-Report**：周日 21:00 ET，跑完整方法论（4 个脚本 + 搜索）→ 归档到 `reports/` + Gmail + Google Calendar 同步财报
