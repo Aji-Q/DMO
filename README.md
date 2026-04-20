@@ -96,7 +96,7 @@ python3 -m pip install --upgrade yfinance curl_cffi pandas
 
 ## 方法论
 
-完整 v2 方法论见 [`docs/METHODOLOGY_v2.md`](docs/METHODOLOGY_v2.md)。核心：
+完整 v2 方法论见 [`docs/METHODOLOGY_v3.md`](docs/METHODOLOGY_v3.md)。核心：
 
 1. **分析 = 持仓 + 扩展池**，找机会 ≠ 盯现有持仓
 2. **多层证据共振**：技术面 🟢 + 智钱层 🟢🟢/🟢🟢🟢 + 内部人 🔥 + 基本面 → 硬结论
