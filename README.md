@@ -10,6 +10,8 @@ DMO/
 │   ├── portfolio_scan.py           # 技术面扫描（EMA/RSI/ATR/布林带）
 │   ├── smart_money_scan.py         # 13F 机构持仓 Q-over-Q（45 天延迟）
 │   ├── insider_scan.py             # Form 4 内部人交易（2 天延迟）
+│   ├── short_interest_scan.py      # FINRA Reg SHO 每日做空（T+1 延迟）
+│   ├── options_anomaly_scan.py     # 异常期权活动 + P/C 比率
 │   ├── earnings_setup.py           # 财报窗口：隐含波动 + 历史 beat/miss + PEAD
 │   └── backtest_resonance.py       # 验证 🟢🟢🟢 共振信号的历史 alpha
 ├── config/
@@ -45,7 +47,25 @@ python3 scripts/insider_scan.py [tickers] [lookback_days]
 输出：每只股票 90 天内 buy/sell 总额、C-suite 高管买入明细。
 数据：SEC EDGAR。
 
-### 4. `earnings_setup.py` — 财报专项（新）
+### 4. `short_interest_scan.py` — 每日做空异动（新）
+```bash
+python3 scripts/short_interest_scan.py [tickers] [days_window]
+# 默认: 持仓+候选池，25 天窗口
+```
+FINRA Reg SHO **T+1 发布**每只股票的做空成交量。Z-score 机制识别做空激增（看空新建）和空头回补（挤空前兆）。绝对值 40-60% 是市场制造商对冲造成的，所以**只看变化率**，不看水平。
+数据：FINRA 官方 CDN，免费。
+
+### 5. `options_anomaly_scan.py` — 异常期权活动（新）
+```bash
+python3 scripts/options_anomaly_scan.py [tickers]
+```
+两层信号：
+- **P/C Vol 比率** (整体情绪)：>1.3 偏空 / <0.5 偏多
+- **Vol/OI > 2 的合约**：今日新开仓超过既有未平仓 2 倍 = 激进新建仓，接近暗池机构信号
+输出 Top 5 异常合约（含 Strike、Moneyness、IV）。
+数据：yfinance option_chain。
+
+### 6. `earnings_setup.py` — 财报专项（新）
 ```bash
 python3 scripts/earnings_setup.py META,AAPL,CVX
 ```
@@ -55,7 +75,7 @@ python3 scripts/earnings_setup.py META,AAPL,CVX
 - **Post-Earnings Drift (PEAD)**：T+5 相对 T-1 的价格漂移
 用于"META 跌 5% 是正常噪声还是真警讯"这类问题。
 
-### 5. `backtest_resonance.py` — 方法论自证（新）
+### 7. `backtest_resonance.py` — 方法论自证（新）
 ```bash
 python3 scripts/backtest_resonance.py [n_quarters] [universe]
 # 默认: 8 季度 + 14 只股票 universe
@@ -91,8 +111,9 @@ python3 -m pip install --upgrade yfinance curl_cffi pandas
 | yfinance K 线 | 实时（15 分钟）| 技术面 | 无必要升级 |
 | SEC 13F-HR | 45 天 | 基金建仓/清仓趋势 | — |
 | SEC Form 4 | 2 天 | 内部人交易 | 唯一的高速信号 |
-| yfinance 期权链 | 盘中 | Implied Move | CBOE DataShop（付费） |
-| 暗池数据 | — | 无 | Unusual Whales（付费） |
+| yfinance 期权链 | 盘中 | Implied Move + 异常活动 | CBOE DataShop（付费） |
+| FINRA Reg SHO | T+1 | 做空量/总量比 | — |
+| FINRA ATS 暗池 | 2 周 | 暗池占比（未采用，延迟太大）| Unusual Whales（付费） |
 
 ## 自动化
 
