@@ -1,0 +1,87 @@
+# DMO 持仓 & 观察列表配置
+# Updated: 2026-04-20
+# 被 DMO agent 在每次分析前读取，无需改 trigger
+
+account:
+  size_usd: 12540          # 含 $10K dry powder 后
+  dry_powder_usd: 10000
+  risk_per_trade_pct: 0.02  # 每笔最大风险 2%
+
+holdings:
+  - ticker: NVDA
+    allocation_pct: 21.3
+    cost_basis: 464.97
+    thesis: "AI Capex core — 持有不加仓"
+  - ticker: SPY
+    allocation_pct: 33.5
+    cost_basis: 732.29
+    thesis: "宽基压舱石 — 52周高点不加"
+  - ticker: AAPL
+    allocation_pct: 4.8
+    cost_basis: 104.77
+    thesis: "财报 4/30 节点 — 毛利率 <48% 减半"
+  - ticker: META
+    allocation_pct: 5.7
+    cost_basis: 673.05
+    thesis: "财报 4/29 — Miss+Capex 超 清仓"
+  - ticker: TSM
+    allocation_pct: 5.6
+    cost_basis: 122.67
+    thesis: "AI 代工 — 智钱在撤，持有不加"
+  - ticker: CVX
+    allocation_pct: 8.4
+    cost_basis: 191.69
+    thesis: "3 层共振（Buffett+Renaissance+技术超卖）— 加仓至 12-14%"
+  - ticker: GLD
+    allocation_pct: 9.4
+    cost_basis: 205.35
+    thesis: "避险 — 不加"
+  - ticker: SCHD
+    allocation_pct: 11.4
+    cost_basis: 248.88
+    thesis: "红利防御 — 加仓至 15-17%"
+
+watchlist:
+  candidates:
+    - ticker: MU
+      rationale: "三派共振（Bridgewater 新建 + Renaissance +151% + Tepper +250%），AI HBM 周期"
+      target_entry: "$440-450 或回踩 $399 EMA50"
+    - ticker: OXY
+      rationale: "Buffett 264.9M 坚守 + 深度超卖 (BB 12%)"
+      target_entry: "$54-55 单笔"
+    - ticker: AMD
+      rationale: "Renaissance +142%，但 RSI 77 过热，等回踩"
+      target_entry: "$230-240"
+  traps:
+    - ticker: JNJ
+      rationale: "超卖但 Renaissance EXIT + Bridgewater -23% — 价值陷阱"
+    - ticker: XOM
+      rationale: "能源板块里被量化放弃，CVX/OXY 才是首选"
+    - ticker: MSTR
+      rationale: "RSI 74 + BB 115% 放量过热，本质 BTC 代理"
+    - ticker: GOOGL
+      rationale: "Ackman -39% 大减 + Renaissance -91%，不接飞刀"
+
+# 扩展扫描池（Phase 6 用）
+expansion_universe:
+  ai_semiconductors: [NVDA, AMD, MU, AVGO, MRVL, LRCX, AMAT, ARM, ASML, QCOM, INTC]
+  mega_tech: [AAPL, META, MSFT, GOOGL, AMZN, TSM, TSLA, NFLX]
+  energy: [CVX, XOM, OXY, COP, EOG, SLB]
+  defensive: [SCHD, JNJ, PG, KO, WMT, COST, PEP]
+  hedge: [GLD, SLV, TLT, BND]
+  speculative: [MSTR, COIN, PLTR, SMCI]
+
+# 财报日历（手动维护，关键节点）
+earnings_calendar:
+  - date: "2026-04-29"
+    ticker: META
+    importance: high
+    key_metrics: "Capex 2026 指引（115-135B 是分水岭），广告增速"
+  - date: "2026-04-30"
+    ticker: AAPL
+    importance: high
+    key_metrics: "毛利率（<48% 减半触发），iPhone 中国"
+  - date: "2026-05-01"
+    ticker: CVX
+    importance: medium
+    key_metrics: "Permian 产量 + FCF @ Brent 假设"
