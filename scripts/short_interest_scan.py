@@ -40,8 +40,9 @@ def parse_day(text, tickers_set):
             symbol = parts[1].strip().upper()
             if symbol not in tickers_set:
                 continue
-            short_vol = int(parts[2])
-            total_vol = int(parts[4])
+            # FINRA 2025+ 文件里 ShortVolume/TotalVolume 是浮点数（lot-split 做市商对冲）
+            short_vol = float(parts[2])
+            total_vol = float(parts[4])
             if total_vol > 0:
                 result[symbol] = (short_vol, total_vol)
         except (ValueError, IndexError):
