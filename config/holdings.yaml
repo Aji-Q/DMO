@@ -11,12 +11,22 @@ account:
   dry_powder_pending_usd: 10000
   risk_per_trade_pct: 0.02
 
-# 真实持仓（shares × cost_basis = 建仓成本）
+# 真实持仓
+# cost_basis = 成交均价（不含费）；fees_paid_usd = 实际手续费
+# effective_cost_basis = (shares × cost_basis + fees_paid_usd) / shares
 # thesis 字段反映 v3 五层信号综合判断
+
+# moomoo US 费率结构（平台确认）：
+#   平台费: $0.005/股，最低 $0.99/单
+#   SEC 费: 0.00278%（仅卖出时收）
+#   FINRA TAF: $0.000166/股（双向）
+# 结论：任何 <200 股的单都是 $0.99 起，fractional share 也是 $0.99 平底
+
 holdings:
   - ticker: NVDA
     shares: 2.31351
     cost_basis: 185.464
+    fees_paid_usd: null  # 历史持仓，需从 moomoo 对账单回补
     thesis: "持有不加仓 — ATM 期权双向大额对冲（陷阱 G：机构预期波动事件），RSI 72 超买"
     signals_snapshot:
       L1_tech: "🟢 多头 RSI 72"
@@ -28,6 +38,7 @@ holdings:
   - ticker: SPY
     shares: 1.03456
     cost_basis: 695.973
+    fees_paid_usd: null
     thesis: "宽基压舱石 — 52周高点不加；0DTE 交易主导当日 vol，忽略"
     signals_snapshot:
       L1_tech: "🟢 多头 RSI 72 超买"
@@ -36,6 +47,7 @@ holdings:
   - ticker: AAPL
     shares: 0.38772
     cost_basis: 257.88
+    fees_paid_usd: null
     thesis: "散户 vs 机构分歧（陷阱 E）— 期权 P/C 0.38 看多 + 内部人/13F 全卖 → 按机构走，财报毛利率 <48% 减半"
     signals_snapshot:
       L1_tech: "🟢 多头"
@@ -49,7 +61,10 @@ holdings:
   - ticker: META
     shares: 0.1829
     cost_basis: 673.045
-    thesis: "财报 4/29 — Miss + Capex >$135B 清仓；gap down <7.6% (implied move) 是噪音，>10% 才是真警"
+    fees_paid_usd: 0.99          # moomoo 平台费最低 $0.99/单
+    effective_cost_basis_usd: 678.46  # (0.1829*673.045 + 0.99) / 0.1829
+    purchase_date: "2026-04-20"
+    thesis: "今天刚买入（财报 4/29 前 9 天）— Miss + Capex >$135B 清仓；gap down <7.6% (implied move) 是噪音，>10% 才是真警"
     signals_snapshot:
       L1_tech: "🟡 死叉修复中"
       L2_13F: "⚠️ 分裂（Ackman NEW / Burry EXIT / Bridgewater -46%）"
@@ -62,6 +77,7 @@ holdings:
   - ticker: TSM
     shares: 0.33763
     cost_basis: 367.506
+    fees_paid_usd: null
     thesis: "AI 代工 — 智钱在撤，期权 P/C 1.25 偏空，持有不加"
     signals_snapshot:
       L1_tech: "🟢 多头"
@@ -73,6 +89,7 @@ holdings:
   - ticker: CVX
     shares: 1
     cost_basis: 191.69
+    fees_paid_usd: null
     thesis: "降级持有不加 — 13F Double-Buy vs C-suite 集中抛售 $155M（CEO $51M + CLO $27M + CFO $5M），回测 Double-Buy 在 CVX 上历史 -1.8%/-2.6% alpha"
     signals_snapshot:
       L1_tech: "🟡 盘整，贴 EMA200"
@@ -87,6 +104,7 @@ holdings:
   - ticker: GLD
     shares: 0.46054
     cost_basis: 434.224
+    fees_paid_usd: null
     thesis: "避险 — 抛物线 FOMO 出现在期权看涨上，不加"
     signals_snapshot:
       L1_tech: "🟢 多头 BB 74%"
@@ -95,6 +113,7 @@ holdings:
   - ticker: SCHD
     shares: 8
     cost_basis: 30.75
+    fees_paid_usd: null
     thesis: "红利防御 — 加仓至 15-17%（dry powder $500 首批）"
     signals_snapshot:
       L1_tech: "🟢 多头"
@@ -167,3 +186,33 @@ earnings_calendar:
     key_metrics: "Permian 产量 + FCF @ Brent 假设；关注 CEO 在电话会上对内部人大额减持的解释"
     implied_move_pct: 4.7
     noise_threshold: "±3% 以内为噪音；>±7% 为真意外"
+
+# 宏观事件日历（Weekly trigger 会用 WebSearch 补充最新日期并同步到 Google Calendar）
+# 这里只列已知的定期事件类型；具体日期由 agent 在运行时查询
+macro_calendar:
+  recurring_events:
+    - type: FOMC
+      frequency: "约每 6 周一次（每年 8 次）"
+      impact: "SPY / GLD / 所有股票的 beta 放大器"
+      agent_instruction: "每次 Weekly 运行时 WebSearch 下一次 FOMC 日期和市场预期"
+
+    - type: CPI
+      frequency: "每月中旬（第 2-3 周）"
+      impact: "通胀预期 → 影响债券/科技股估值"
+      agent_instruction: "WebSearch 下一次 CPI 公布日期和 consensus"
+
+    - type: NFP (Non-Farm Payrolls)
+      frequency: "每月首个周五"
+      impact: "就业数据 → 影响 Fed 路径"
+      agent_instruction: "WebSearch 下一次 NFP 日期"
+
+    - type: PCE (Fed 偏好的通胀指标)
+      frequency: "每月末"
+      impact: "Fed 决策核心参考"
+      agent_instruction: "WebSearch 下一次 PCE 公布日"
+
+# 日历事件类型（Weekly trigger Phase 7 会同步到 Google Calendar）
+# 1. 财报（来自 earnings_calendar）
+# 2. 宏观事件（来自 macro_calendar.recurring_events + WebSearch）
+# 3. Ad-hoc 事件（扫描中发现：分析师日、产品发布、监管决定、中东冲突等）
+# 4. 纪律警告（若某持仓已接近 ATR 止损或财报 gap 触发线）
