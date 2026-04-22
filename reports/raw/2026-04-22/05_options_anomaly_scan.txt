@@ -1,5 +1,3 @@
-/usr/local/lib/python3.11/dist-packages/bs4/css.py:40: UserWarning: The soupsieve package is not installed. CSS selectors cannot be used.
-  warnings.warn(
 扫描 11 只股票的异常期权活动...
 
 Ticker       Spot    CallsV     PutsV  P/C Vol   P/C OI  #Anom  Signals
