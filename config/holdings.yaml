@@ -1,14 +1,19 @@
 # DMO 持仓 & 观察列表配置
-# Updated: 2026-04-20 (v3 — 含 Form 4 + 期权层信号修订)
+# Updated: 2026-04-22 (v3.2 — 同步 moomoo 11:41 ET 快照 + 补全 purchase_date)
 # 被 DMO agent 在每次分析前读取，无需改 trigger
 
+# 账户历史完整记录见 data/transactions.csv（append-only 流水）
+# 每日资产曲线见 reports/portfolio-chart-latest.png（跑 scripts/track_portfolio.py 再生成）
+
 account:
-  total_assets_usd: 2541.53       # 证券市值 + 现金
-  securities_value_usd: 2185.59
-  cash_total_usd: 353.18
-  cash_sweep_usd: 249.21
+  account_opened: "2026-01-30"    # 首次入金日
+  initial_deposit_usd: 2500.00    # 一次到账，无追加
+  total_assets_usd: 2553.48       # 2026-04-22 11:41 ET moomoo 实时
+  securities_value_usd: 2499.53
+  cash_total_usd: 51.19           # 含 cash_sweep 所有利息
   cash_sweep_apy: 0.0335
-  dry_powder_pending_usd: 10000
+  cash_sweep_accumulated_interest_usd: 0.19
+  dry_powder_pending_usd: 10000   # 外部银行待转入，尚未到账
   risk_per_trade_pct: 0.02
 
 # 真实持仓
@@ -25,9 +30,10 @@ account:
 holdings:
   - ticker: NVDA
     shares: 2.31351
-    cost_basis: 185.464
-    fees_paid_usd: null  # 历史持仓，需从 moomoo 对账单回补
-    thesis: "持有不加仓 — ATM 期权双向大额对冲（陷阱 G：机构预期波动事件），RSI 72 超买"
+    cost_basis: 185.464                    # moomoo 显示均价（fee-exclusive）
+    purchase_dates: ["2026-02-02", "2026-02-23", "2026-03-25"]
+    fees_paid_usd: 2.97                    # 3 笔 × $0.99
+    thesis: "持有不加仓 — ATM 期权双向大额对冲（陷阱 G：机构预期波动事件），RSI 69 退热中"
     signals_snapshot:
       L1_tech: "🟢 多头 RSI 72"
       L2_13F: "⚠️ 分裂 (Bridgewater +54% / Renaissance -85%)"
@@ -37,8 +43,10 @@ holdings:
 
   - ticker: SPY
     shares: 1.03456
-    cost_basis: 695.973
-    fees_paid_usd: null
+    cost_basis: 695.973                    # buy 平均价，卖出 0.5 股未调整余额均价
+    purchase_dates: ["2026-01-30", "2026-02-02"]
+    partial_sell_dates: ["2026-04-20"]
+    fees_paid_usd: 2.97                    # 2 买 + 1 卖
     thesis: "宽基压舱石 — 52周高点不加；0DTE 交易主导当日 vol，忽略"
     signals_snapshot:
       L1_tech: "🟢 多头 RSI 72 超买"
@@ -47,7 +55,8 @@ holdings:
   - ticker: AAPL
     shares: 0.38772
     cost_basis: 257.88
-    fees_paid_usd: null
+    purchase_dates: ["2026-01-30"]
+    fees_paid_usd: 0.99
     thesis: "散户 vs 机构分歧（陷阱 E）— 期权 P/C 0.38 看多 + 内部人/13F 全卖 → 按机构走，财报毛利率 <48% 减半"
     signals_snapshot:
       L1_tech: "🟢 多头"
@@ -61,9 +70,9 @@ holdings:
   - ticker: META
     shares: 0.1829
     cost_basis: 673.045
+    purchase_dates: ["2026-04-20"]
     fees_paid_usd: 0.99          # moomoo 平台费最低 $0.99/单
     effective_cost_basis_usd: 678.46  # (0.1829*673.045 + 0.99) / 0.1829
-    purchase_date: "2026-04-20"
     thesis: "今天刚买入（财报 4/29 前 9 天）— Miss + Capex >$135B 清仓；gap down <7.6% (implied move) 是噪音，>10% 才是真警"
     signals_snapshot:
       L1_tech: "🟡 死叉修复中"
@@ -75,9 +84,10 @@ holdings:
       implied_move: "±7.6%"
 
   - ticker: TSM
-    shares: 0.33763
+    shares: 0.3376
     cost_basis: 367.506
-    fees_paid_usd: null
+    purchase_dates: ["2026-04-20"]
+    fees_paid_usd: 0.99
     thesis: "AI 代工 — 智钱在撤，期权 P/C 1.25 偏空，持有不加"
     signals_snapshot:
       L1_tech: "🟢 多头"
@@ -87,9 +97,10 @@ holdings:
       L5_options: "🔴 P/C 1.25 + 地缘对冲"
 
   - ticker: CVX
-    shares: 1
-    cost_basis: 191.69
-    fees_paid_usd: null
+    shares: 2.6371                       # 1 (4/13) + 1.6371 (4/20 $300 加仓 @183.25)
+    cost_basis: 186.451                  # moomoo 加权均价
+    purchase_dates: ["2026-04-13", "2026-04-20"]
+    fees_paid_usd: 1.98                  # 2 笔 × $0.99
     thesis: "降级持有不加 — 13F Double-Buy vs C-suite 集中抛售 $155M（CEO $51M + CLO $27M + CFO $5M），回测 Double-Buy 在 CVX 上历史 -1.8%/-2.6% alpha"
     signals_snapshot:
       L1_tech: "🟡 盘整，贴 EMA200"
@@ -102,9 +113,10 @@ holdings:
       backtest_history: "2025-02-14 Single-Buy -6.3% / 2025-08-14 Double-Buy -1.8% / 2026-02-17 Double-Buy -2.6%"
 
   - ticker: GLD
-    shares: 0.46054
+    shares: 0.4606                        # 0.2302 + 0.2304（两笔 $100 dollar-order 同日）
     cost_basis: 434.224
-    fees_paid_usd: null
+    purchase_dates: ["2026-04-13"]
+    fees_paid_usd: 1.98                   # 2 笔 × $0.99
     thesis: "避险 — 抛物线 FOMO 出现在期权看涨上，不加"
     signals_snapshot:
       L1_tech: "🟢 多头 BB 74%"
@@ -113,7 +125,8 @@ holdings:
   - ticker: SCHD
     shares: 8
     cost_basis: 30.75
-    fees_paid_usd: null
+    purchase_dates: ["2026-04-13"]
+    fees_paid_usd: 0.99
     thesis: "红利防御 — 加仓至 15-17%（dry powder $500 首批）"
     signals_snapshot:
       L1_tech: "🟢 多头"
