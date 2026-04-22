@@ -7,7 +7,7 @@
 
 ## 使用方式
 
-三种模式任选：
+五种模式任选：
 
 ### 模式 A — 完整周报（默认）
 ```
@@ -22,6 +22,23 @@
 ### 模式 C — 快速技术面检查
 ```
 请按 DMO SOP 快扫持仓：https://github.com/Aji-Q/DMO/blob/main/docs/DMO_ANALYSIS_PROMPT.md
+```
+
+### 模式 D — 记录新交易 + 更新账户曲线 🆕
+```
+按 DMO 仓库 scripts/track_portfolio.py 工作流记录新交易并更新曲线：
+- [YYYY-MM-DD HH:MM] 买入/卖出 [TICKER] [N] 股 @ $[price]
+仓库：https://github.com/Aji-Q/DMO
+请先读 docs/DMO_ANALYSIS_PROMPT.md 和 reports/2026-04-22-portfolio-baseline.md 了解工作流，
+然后 append 到 data/transactions.csv、重跑 track_portfolio.py、commit + push。
+```
+
+### 模式 E — 月度对账 / 更新利息 🆕
+```
+按 DMO 仓库对账更新：moomoo 显示累计利息 $[X.XX]（上次记录 $[prev]）
+请按 data/transactions.csv 的 INTEREST 行格式录入增量差值，
+重跑 scripts/track_portfolio.py，commit + push。
+仓库：https://github.com/Aji-Q/DMO
 ```
 
 ---
@@ -67,6 +84,37 @@ python3 -m pip install --upgrade yfinance curl_cffi pandas 2>&1 | tail -3
 2. **`config/holdings.yaml`** — 持仓详情 + 候选池 + 财报日历 + 宏观日历 + moomoo 手续费结构
 3. **`reports/` 最近 2-3 份 `*-weekly-deep.md`** — 上次分析作对比基线
 4. **`reports/raw/` 最新 dir（若存在）** — Phase 1 刚跑完的扫描输出
+5. **`data/transactions.csv`** 🆕 — 账户完整交易流水（append-only ledger，自 2026-01-30 开户起）
+6. **`reports/2026-04-22-portfolio-baseline.md`** 🆕 — 账户曲线工具首次 baseline + 工作流文档
+
+---
+
+## 💼 账户曲线追踪系统（模式 D/E 核心）
+
+**文件架构**：
+```
+data/transactions.csv          # append-only 交易流水（DEPOSIT/BUY/SELL/DIVIDEND/INTEREST/WITHDRAW）
+data/daily_valuation.csv        # 每日净值快照（track_portfolio.py 覆盖式生成）
+scripts/calculate_fees.py       # moomoo 费率工具函数
+scripts/track_portfolio.py      # 主引擎：读 tx → 拉 yfinance → 画图
+reports/portfolio-chart-latest.png     # 最新曲线（覆盖式）
+reports/YYYY-MM-DD-portfolio-chart.png # 日期快照归档
+```
+
+**交易记录流程**（模式 D）：
+1. 追加一行到 `data/transactions.csv`，schema：`date,time_et,ticker,action,shares,price,gross_usd,note`
+   - BUY/SELL：shares 和 price 照实，gross_usd = shares × price
+   - Dollar-order（如 "$300 @ $186.57"）：shares = gross/price 计算
+   - DEPOSIT/WITHDRAW：ticker=`-`, shares/price=0, gross_usd=现金金额
+   - INTEREST/DIVIDEND：ticker=`-`（或具体股票）, shares/price=0, gross_usd=累计利息增量
+2. 更新 `config/holdings.yaml` 的持仓 shares + cost_basis + cash（对照 moomoo 最新快照）
+3. 跑 `python3 scripts/track_portfolio.py` 重新生成 daily_valuation.csv + PNG
+4. commit + push
+
+**对账差容忍**：$10-30（1% 左右）正常，主要来源：
+- yfinance 收盘价 vs moomoo 盘中报价（±$5-10）
+- moomoo 新用户免佣活动导致实际手续费远低于 calculate_fees.py 模型（差 $10-20）
+- 超过 $50 差额需要调查
 
 ---
 
