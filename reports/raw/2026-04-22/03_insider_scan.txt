@@ -7,21 +7,13 @@ NVDA          22        11         0    208126   -208126  🔴 heavy insider sel
 SPY            4         0         0         0         0  —
 AAPL          20        13         0     24173    -24173  🔴 heavy insider selling
 META          39        16         0    105562   -105562  🔴 heavy insider selling
-TSM           34        30       820         0       820  🔥 6 C-suite buys ($32K)
+TSM            0         0         0         0         0  —
 CVX           40        14         0    155815   -155815  🔴 heavy insider selling
 GLD            0         0         0         0         0  —
 SCHD     CIK not found
 MU            11         8         0     53108    -53108  🔴 heavy insider selling
 OXY           17        11         0         0         0  —
 AMD           17         9         0     63860    -63860  🔴 heavy insider selling
-
-🔥 C-suite BUYS (最近 90 天):
-  TSM    2026-04-13: Chairman and CEO               Wei Che-Chia                     186 sh @ $57.87 = $11K
-  TSM    2026-04-13: EVP and Co-COO                 Chin Yung-Pei                     89 sh @ $57.87 = $5K
-  TSM    2026-04-13: EVP and Co-COO                 Mii Yuh-Jier                      88 sh @ $57.87 = $5K
-  TSM    2026-04-13: SVP and Deputy Co-COO          Zhang Kevin Xiaoqiang             79 sh @ $57.87 = $5K
-  TSM    2026-04-13: SVP and Deputy Co-COO          Hou Yung-Chin                     78 sh @ $57.87 = $5K
-  TSM    2026-04-13: SVP and CFO                    Huang Jen-Chau                    37 sh @ $57.87 = $2K
 
 ⚠️  C-suite SELLS (最近 90 天):
   CVX    2026-03-04: Chairman and CEO               Wirth Michael K               90,524 sh = $17203K

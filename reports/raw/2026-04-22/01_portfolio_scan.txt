@@ -1,13 +1,17 @@
+/opt/anaconda3/lib/python3.12/site-packages/pandas/core/computation/expressions.py:22: UserWarning: Pandas requires version '2.10.2' or newer of 'numexpr' (version '2.8.7' currently installed).
+  from pandas.core.computation.check import NUMEXPR_INSTALLED
+/opt/anaconda3/lib/python3.12/site-packages/pandas/core/arrays/masked.py:56: UserWarning: Pandas requires version '1.4.2' or newer of 'bottleneck' (version '1.3.7' currently installed).
+  from pandas.core import (
 T        Price   EMA50  EMA200  ATR%   RSI  Trend   ATR-Stop   BB%   Vol
 ------------------------------------------------------------------------------
-NVDA    199.88  185.17  174.17  2.5%  67.6  多头        192.41   83%  0.7x
-SPY     704.08  676.76  654.72  1.3%  67.7  多头        690.80   82%  0.8x
-AAPL    266.17  260.27  250.56  2.3%  56.7  多头        257.04   78%  1.2x
-META    668.84  631.55  644.21  2.9%  62.2  盘整        639.83   79%  0.5x
-TSM     368.08  349.58  299.80  3.2%  56.9  多头        350.61   70%  0.6x
-CVX     185.98  188.83  166.80  3.0%  41.6  盘整        177.65   24%  0.8x
-GLD     429.57  439.13  399.15  2.3%  44.9  盘整        414.66   50%  0.8x
-SCHD     30.98   30.45   28.40  1.0%  57.7  多头         30.51   87%  0.8x
-MU      449.38  401.46  289.95  5.6%  60.5  多头        411.73   77%  0.6x
-OXY      56.33   55.55   47.74  4.2%  45.8  多头         52.75   26%  0.8x
-AMD     284.49  226.22  198.28  3.7%  79.4  多头        268.55   93%  1.1x
+NVDA    201.35  185.80  174.44  2.4%  68.9  多头        194.18   82%  0.2x
+SPY     709.95  678.06  655.27  1.2%  70.2  多头        696.91   84%  0.2x
+AAPL    271.84  260.72  250.77  2.2%  61.7  多头        262.68   92%  0.4x
+META    674.46  633.23  644.51  2.7%  63.5  盘整        646.74   78%  0.2x
+TSM     374.73  350.57  300.55  3.0%  60.0  多头        357.70   76%  0.3x
+CVX     187.29  188.77  167.01  2.9%  43.7  盘整        179.19   29%  0.2x
+GLD     435.10  438.97  399.51  2.2%  48.3  盘整        420.45   58%  0.2x
+SCHD     31.08   30.48   28.43  1.0%  60.0  多头         30.62   94%  0.3x
+MU      474.72  404.34  291.79  5.4%  66.1  多头        436.53   86%  0.4x
+OXY      56.43   55.59   47.83  4.0%  46.2  多头         53.02   28%  0.2x
+AMD     295.60  228.94  199.24  3.6%  81.9  多头        279.55   95%  0.5x
