@@ -221,69 +221,188 @@ def build_spy_benchmark(tx: pd.DataFrame, prices: pd.DataFrame) -> pd.DataFrame:
 
 
 def plot_chart(valuation: pd.DataFrame, spy_bench: pd.DataFrame, tx: pd.DataFrame, out_paths: list[Path]):
-    """生成 4 条线 + 事件标注 + benchmark 的折线图。"""
-    fig, (ax_main, ax_fees) = plt.subplots(
-        2, 1, figsize=(14, 9), sharex=True, gridspec_kw={"height_ratios": [3, 1]}
-    )
+    """精简设计：总资产 vs SPY 基准 + alpha 填色；手续费横向甘特风格独立面板。"""
+    # 现代化调色 + 字号
+    BG = "#fafafa"
+    INK = "#1a1a1a"
+    MUTED = "#6b7280"
+    GRID = "#e5e7eb"
+    POS = "#10b981"   # 绿（跑赢）
+    NEG = "#ef4444"   # 红（跑输 / 手续费）
+    BENCH = "#9ca3af" # 灰（基准）
+
+    fig = plt.figure(figsize=(14, 8), facecolor=BG)
+    gs = fig.add_gridspec(2, 1, height_ratios=[5, 1], hspace=0.15)
+    ax_main = fig.add_subplot(gs[0], facecolor=BG)
+    ax_fees = fig.add_subplot(gs[1], sharex=ax_main, facecolor=BG)
+
     dates = pd.to_datetime(valuation["date"])
+    total = valuation["total_assets"].values
 
-    # 主图 —— 资产曲线
-    ax_main.plot(dates, valuation["total_assets"], label="总资产", color="#111", linewidth=2.2, zorder=5)
-    ax_main.plot(dates, valuation["securities_value"], label="证券市值", color="#2e7d32", linewidth=1.3, alpha=0.85)
-    ax_main.plot(dates, valuation["cash"], label="现金", color="#1565c0", linewidth=1.3, alpha=0.85)
-
+    # ---------------- 主图 ----------------
+    # SPY 基准（用日期对齐）
     if not spy_bench.empty:
         bench_dates = pd.to_datetime(spy_bench["date"])
-        ax_main.plot(bench_dates, spy_bench["spy_benchmark"], label="SPY 全仓基准", color="#e65100",
-                     linewidth=1.3, linestyle="--", alpha=0.75)
+        bench_values = spy_bench["spy_benchmark"].values
 
-    # 事件标注（买卖）
+        # 用共同时间轴对齐两条曲线（取交集以画 alpha 填色）
+        bench_series = pd.Series(bench_values, index=bench_dates)
+        total_series = pd.Series(total, index=dates)
+        aligned = pd.concat([total_series.rename("total"), bench_series.rename("bench")], axis=1).ffill().dropna()
+
+        # Alpha 填色：total > bench 绿色，<  bench 红色
+        ax_main.fill_between(
+            aligned.index, aligned["total"], aligned["bench"],
+            where=aligned["total"] >= aligned["bench"],
+            interpolate=True, color=POS, alpha=0.12, linewidth=0,
+        )
+        ax_main.fill_between(
+            aligned.index, aligned["total"], aligned["bench"],
+            where=aligned["total"] < aligned["bench"],
+            interpolate=True, color=NEG, alpha=0.12, linewidth=0,
+        )
+
+        ax_main.plot(
+            bench_dates, bench_values, color=BENCH, linewidth=1.6,
+            linestyle=(0, (6, 3)), label="SPY 买入持有基准", zorder=3,
+        )
+
+    # 主曲线：总资产
+    ax_main.plot(dates, total, color=INK, linewidth=2.4, label="账户总资产", zorder=5)
+
+    # 买卖事件：极简圆点（不喧宾夺主）
     event_tx = tx[tx["action"].isin(["BUY", "SELL"])]
     for _, row in event_tx.iterrows():
         d = row["date"]
-        marker = "^" if row["action"] == "BUY" else "v"
-        color = "#2e7d32" if row["action"] == "BUY" else "#c62828"
         val_on_day = valuation[pd.to_datetime(valuation["date"]) == d]
-        if not val_on_day.empty:
-            y = val_on_day["total_assets"].values[0]
-            ax_main.scatter(d, y, marker=marker, color=color, s=55, zorder=10, alpha=0.85,
-                            edgecolors="white", linewidths=0.8)
+        if val_on_day.empty:
+            continue
+        y = val_on_day["total_assets"].values[0]
+        color = POS if row["action"] == "BUY" else NEG
+        ax_main.scatter(d, y, s=14, color=color, alpha=0.55, zorder=7, edgecolors="none")
 
+    # 端点标注
     latest = valuation.iloc[-1]
-    ax_main.axhline(latest["total_assets"], color="#999", linestyle=":", linewidth=0.8, alpha=0.6)
+    last_date = dates.iloc[-1]
+    ax_main.scatter([last_date], [latest["total_assets"]], s=72, color=INK, zorder=10, edgecolors=BG, linewidths=2)
     ax_main.annotate(
-        f"现: ${latest['total_assets']:.2f}",
-        xy=(dates.iloc[-1], latest["total_assets"]),
-        xytext=(10, 5), textcoords="offset points",
-        fontsize=10, fontweight="bold", color="#111",
+        f"  ${latest['total_assets']:,.0f}",
+        xy=(last_date, latest["total_assets"]),
+        xytext=(8, 0), textcoords="offset points",
+        fontsize=12, fontweight="bold", color=INK,
+        ha="left", va="center",
     )
+    if not spy_bench.empty:
+        bench_last = spy_bench.iloc[-1]["spy_benchmark"]
+        ax_main.annotate(
+            f"  ${bench_last:,.0f}",
+            xy=(pd.to_datetime(spy_bench.iloc[-1]["date"]), bench_last),
+            xytext=(8, 0), textcoords="offset points",
+            fontsize=10, color=MUTED, ha="left", va="center",
+        )
 
-    ax_main.set_ylabel("USD", fontsize=11)
+    # 计算 alpha
+    if not spy_bench.empty:
+        initial = spy_bench.iloc[0]["spy_benchmark"]
+        acct_return_pct = (latest["total_assets"] / initial - 1) * 100
+        bench_return_pct = (bench_last / initial - 1) * 100
+        alpha = acct_return_pct - bench_return_pct
+        alpha_txt = f"{alpha:+.2f}%"
+        alpha_color = POS if alpha >= 0 else NEG
+    else:
+        acct_return_pct = bench_return_pct = 0
+        alpha_txt, alpha_color = "n/a", MUTED
+
+    # 标题 —— 简洁，只写关键数字
+    start_date = dates.iloc[0].date()
+    end_date = last_date.date()
     ax_main.set_title(
-        f"DMO 账户资产曲线 (moomoo) — {dates.iloc[0].date()} → {dates.iloc[-1].date()}\n"
-        f"总资产 ${latest['total_assets']:.2f} | 证券 ${latest['securities_value']:.2f} | "
-        f"现金 ${latest['cash']:.2f} | 已付手续费 ${latest['cum_fees']:.2f} | "
-        f"实现 ${latest['cum_realized_pnl']:+.2f} | 未实现 ${latest['unrealized_pnl']:+.2f}",
-        fontsize=11, loc="left",
+        f"DMO 账户资产曲线  ·  {start_date}  →  {end_date}",
+        fontsize=14, fontweight="bold", color=INK, loc="left", pad=14,
     )
-    ax_main.legend(loc="upper left", frameon=True, fontsize=9)
-    ax_main.grid(True, linestyle="--", alpha=0.3)
+    # 副标题：左边灰色自有/基准回报，右边彩色超额
+    ax_main.text(
+        0.0, 1.015,
+        f"账户 {acct_return_pct:+.2f}%     SPY {bench_return_pct:+.2f}%",
+        transform=ax_main.transAxes,
+        fontsize=10.5, color=MUTED, va="bottom",
+    )
+    ax_main.text(
+        1.0, 1.015,
+        f"超额 {alpha_txt}",
+        transform=ax_main.transAxes,
+        fontsize=10.5, color=alpha_color, fontweight="bold", va="bottom", ha="right",
+    )
 
-    # 副图 —— 累计手续费
-    ax_fees.fill_between(dates, 0, valuation["cum_fees"], color="#c62828", alpha=0.25, label="累计手续费")
-    ax_fees.plot(dates, valuation["cum_fees"], color="#c62828", linewidth=1.0)
-    ax_fees.set_ylabel("累计手续费 USD", fontsize=10)
-    ax_fees.set_xlabel("日期", fontsize=10)
-    ax_fees.grid(True, linestyle="--", alpha=0.3)
-    ax_fees.legend(loc="upper left", frameon=True, fontsize=9)
+    # 美化 spines
+    for sp in ["top", "right"]:
+        ax_main.spines[sp].set_visible(False)
+    for sp in ["left", "bottom"]:
+        ax_main.spines[sp].set_color(MUTED)
+        ax_main.spines[sp].set_linewidth(0.8)
 
-    ax_fees.xaxis.set_major_locator(mdates.WeekdayLocator(interval=1))
+    ax_main.tick_params(colors=MUTED, labelsize=10)
+    ax_main.yaxis.set_major_formatter(plt.FuncFormatter(lambda x, _: f"${x:,.0f}"))
+    ax_main.grid(True, axis="y", color=GRID, linestyle="-", linewidth=0.7, alpha=0.8)
+    ax_main.set_axisbelow(True)
+
+    # 只在合适 y 范围内显示（裁掉早期 cash dip 无关区间 — 因为不再画 cash 线）
+    y_min = min(total.min(), spy_bench["spy_benchmark"].min() if not spy_bench.empty else total.min())
+    y_max = max(total.max(), spy_bench["spy_benchmark"].max() if not spy_bench.empty else total.max())
+    y_pad = (y_max - y_min) * 0.12
+    ax_main.set_ylim(y_min - y_pad, y_max + y_pad)
+
+    ax_main.legend(
+        loc="lower right", frameon=False, fontsize=10,
+        labelcolor=INK, handlelength=1.8,
+    )
+
+    # ---------------- 副图：手续费累计阶梯 ----------------
+    # 设计：阶梯式填充区域 + 端点数字；每次交易即看到一个"台阶"
+    ax_fees.fill_between(
+        dates, 0, valuation["cum_fees"],
+        step="post", color=NEG, alpha=0.18, linewidth=0,
+    )
+    ax_fees.step(
+        dates, valuation["cum_fees"],
+        where="post", color=NEG, linewidth=1.6,
+    )
+    # 端点点 + 标注
+    cum_fee_final = latest["cum_fees"]
+    pct_of_assets = cum_fee_final / latest["total_assets"] * 100
+    ax_fees.scatter([last_date], [cum_fee_final], s=36, color=NEG, zorder=5, edgecolors=BG, linewidths=1.5)
+    ax_fees.annotate(
+        f"累计 ${cum_fee_final:.2f}   ·   {pct_of_assets:.2f}% of NAV",
+        xy=(last_date, cum_fee_final),
+        xytext=(8, 0), textcoords="offset points",
+        fontsize=9.5, color=NEG, fontweight="bold", va="center",
+    )
+
+    ax_fees.set_ylim(0, max(valuation["cum_fees"].max() * 1.25, 1))
+    for sp in ["top", "right"]:
+        ax_fees.spines[sp].set_visible(False)
+    for sp in ["left", "bottom"]:
+        ax_fees.spines[sp].set_color(MUTED)
+        ax_fees.spines[sp].set_linewidth(0.8)
+    ax_fees.tick_params(colors=MUTED, labelsize=9)
+    ax_fees.yaxis.set_major_formatter(plt.FuncFormatter(lambda x, _: f"${x:.0f}"))
+    ax_fees.set_ylabel("手续费", fontsize=10, color=MUTED)
+    ax_fees.grid(True, axis="y", color=GRID, linestyle="-", linewidth=0.6, alpha=0.8)
+    ax_fees.set_axisbelow(True)
+
+    # X 轴
+    ax_fees.xaxis.set_major_locator(mdates.WeekdayLocator(byweekday=mdates.MO, interval=2))
     ax_fees.xaxis.set_major_formatter(mdates.DateFormatter("%m-%d"))
-    fig.autofmt_xdate(rotation=30)
+    for lbl in ax_fees.get_xticklabels():
+        lbl.set_rotation(0)
+
+    # 右边留空给端点标注
+    x_pad = (dates.iloc[-1] - dates.iloc[0]).days * 0.06
+    ax_fees.set_xlim(dates.iloc[0], dates.iloc[-1] + pd.Timedelta(days=x_pad))
 
     plt.tight_layout()
     for path in out_paths:
-        plt.savefig(path, dpi=130, bbox_inches="tight")
+        plt.savefig(path, dpi=140, bbox_inches="tight", facecolor=BG)
     plt.close(fig)
 
 
