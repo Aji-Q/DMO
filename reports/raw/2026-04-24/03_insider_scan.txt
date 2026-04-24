@@ -1,0 +1,46 @@
+Loading SEC ticker-CIK map...
+
+Insider scan: 11 tickers × 90d lookback
+Ticker   Filings  Insiders    Buy $K   Sell $K    Net $K  Signal
+------------------------------------------------------------------------------------------
+NVDA          20        10         0    172119   -172119  🔴 heavy insider selling
+SPY            4         0         0         0         0  —
+AAPL           0         0         0         0         0  —
+META          40        16         0    106619   -106619  🔴 heavy insider selling
+TSM           35        30       820         0       820  🔥 6 C-suite buys ($32K)
+CVX           40        14         0    155815   -155815  🔴 heavy insider selling
+GLD            0         0         0         0         0  —
+SCHD     CIK not found
+MU            11         8         0     53108    -53108  🔴 heavy insider selling
+OXY           17        11         0         0         0  —
+AMD           17         9         0     63860    -63860  🔴 heavy insider selling
+
+🔥 C-suite BUYS (最近 90 天):
+  TSM    2026-04-13: Chairman and CEO               Wei Che-Chia                     186 sh @ $57.87 = $11K
+  TSM    2026-04-13: EVP and Co-COO                 Chin Yung-Pei                     89 sh @ $57.87 = $5K
+  TSM    2026-04-13: EVP and Co-COO                 Mii Yuh-Jier                      88 sh @ $57.87 = $5K
+  TSM    2026-04-13: SVP and Deputy Co-COO          Zhang Kevin Xiaoqiang             79 sh @ $57.87 = $5K
+  TSM    2026-04-13: SVP and Deputy Co-COO          Hou Yung-Chin                     78 sh @ $57.87 = $5K
+  TSM    2026-04-13: SVP and CFO                    Huang Jen-Chau                    37 sh @ $57.87 = $2K
+
+⚠️  C-suite SELLS (最近 90 天):
+  CVX    2026-03-04: Chairman and CEO               Wirth Michael K               90,524 sh = $17203K
+  CVX    2026-03-04: Chairman and CEO               Wirth Michael K               86,329 sh = $16301K
+  META   2026-02-24: Chief Financial Officer        LI SUSAN J                    18,789 sh = $12213K
+  CVX    2026-03-04: Chairman and CEO               Wirth Michael K               64,399 sh = $12211K
+  MU     2026-04-14: EVP and Chief Business Officer Sadana Sumit                  24,000 sh = $10112K
+  CVX    2026-03-10: Chief Legal Officer            Pate R. Hewitt                47,200 sh = $9068K
+  MU     2026-04-03: EVP and Chief People Officer   ARNZEN APRIL S                25,000 sh = $8712K
+  CVX    2026-04-01: Chief Legal Officer            Pate R. Hewitt                40,200 sh = $8575K
+  META   2026-03-03: Chief Financial Officer        LI SUSAN J                    11,744 sh = $7590K
+  MU     2026-02-04: EVP and Chief Business Officer Sadana Sumit                  17,450 sh = $7494K
+  AMD    2026-04-17: Chief Technology Officer & EVP Papermaster Mark D            27,109 sh = $7455K
+  META   2026-03-03: Chief Financial Officer        LI SUSAN J                    11,306 sh = $7296K
+  CVX    2026-02-03: Chief Legal Officer            Pate R. Hewitt                41,134 sh = $7256K
+  META   2026-02-26: Chief Financial Officer        LI SUSAN J                    11,252 sh = $7100K
+  AMD    2026-03-16: Chair, President & CEO         Su Lisa T                     35,587 sh = $7053K
+  META   2026-02-26: Chief Financial Officer        LI SUSAN J                    10,436 sh = $6595K
+  CVX    2026-02-03: Chief Financial Officer        BONNER EIMEAR P               32,100 sh = $5618K
+  CVX    2026-03-03: Chief Legal Officer            Pate R. Hewitt                29,260 sh = $5505K
+  CVX    2026-03-04: Chairman and CEO               Wirth Michael K               27,672 sh = $5202K
+  META   2026-02-26: Chief Financial Officer        LI SUSAN J                     8,138 sh = $5168K

@@ -1,0 +1,17 @@
+/opt/anaconda3/lib/python3.12/site-packages/pandas/core/computation/expressions.py:22: UserWarning: Pandas requires version '2.10.2' or newer of 'numexpr' (version '2.8.7' currently installed).
+  from pandas.core.computation.check import NUMEXPR_INSTALLED
+/opt/anaconda3/lib/python3.12/site-packages/pandas/core/arrays/masked.py:56: UserWarning: Pandas requires version '1.4.2' or newer of 'bottleneck' (version '1.3.7' currently installed).
+  from pandas.core import (
+T        Price   EMA50  EMA200  ATR%   RSI  Trend   ATR-Stop   BB%   Vol
+------------------------------------------------------------------------------
+NVDA    209.15  187.28  175.64  2.6%  72.1  多头        201.09   90%  0.7x
+SPY     713.16  680.63  657.92  1.2%  70.1  多头        700.24   80%  0.3x
+AAPL    270.29  261.62  251.89  2.2%  58.7  多头        261.48   78%  0.3x
+META    675.00  635.86  647.58  2.8%  61.5  盘整        646.40   74%  0.3x
+TSM     404.84  354.36  303.53  3.2%  69.0  多头        385.28  100%  0.8x
+CVX     183.77  188.49  167.51  2.8%  39.7  盘整        176.09   24%  0.2x
+GLD     434.02  438.48  399.92  2.1%  48.0  盘整        420.18   51%  0.4x
+SCHD     31.23   30.54   28.50  1.0%  60.5  多头         30.74   91%  0.4x
+MU      499.84  411.46  296.43  5.2%  69.4  多头        460.88   89%  0.4x
+OXY      56.73   55.74   48.05  3.8%  47.2  多头         53.53   33%  0.2x
+AMD     350.39  236.86  202.53  3.9%  89.2  多头        329.88  111%  1.3x
