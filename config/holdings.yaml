@@ -135,12 +135,17 @@ holdings:
 watchlist:
   candidates:
     - ticker: MU
-      rationale: "近 4 层共振候选 — 13F 三派（Bridgewater 新建 + Renaissance +151% + Tepper +250%）+ 期权 P/C 0.68 偏多且 4/24 $535 OTM call Vol/OI 11.4x（有机构赌 3 天涨 20%）"
-      target_entry: "$440-450 或回踩 $399 EMA50"
+      rationale: "TRUE Triple-Buy 确认（v3.3.1 CUSIP 修复后）— Bridgewater 新建 0.9M (+52355%) + Renaissance +151% (3.0M) + Tepper +250% (1.8M)。但回测 Triple-Buy N=2 alpha -3.3% + L3 CBO+CPO 抛 $27M + L5 0DTE put 对冲 (29x Vol/OI) + YTD +68% 已 priced。"
+      target_entry: "$440-460 或回踩 $411 EMA50；不在 $500 追高"
+      target_size_usd: 400   # v3.3.1 从 $300 升级到 $400
+      stop_loss: 400
+      targets: [540, 600]
       signals_snapshot:
-        L2_13F: "🟢🟢🟢 Triple（回测 N=2 需谨慎但方向性够）"
-        L5_options: "🟢 P/C 0.68 + 激进 call"
-      historical_alpha: "2025-08-14 Single-Buy +92.7%（最大赢家）"
+        L2_13F: "🟢🟢🟢 TRUE Triple-Buy（但回测 N=2 警惕）"
+        L3_insider: "🔴 -$53M CBO+CPO 连抛"
+        L5_options: "🔴 0DTE put 对冲集中 (Vol/OI 29x)"
+      historical_alpha: "2025-08-14 Single-Buy +92.7%（最大赢家）；Triple-Buy 回测 N=2 均值 -3.3%"
+      confidence: 65  # v3.3.1 从 55% 升级
 
     - ticker: OXY
       rationale: "Buffett 264.9M 坚守 + 期权 P/C 0.39 看多 + BB 12% 深度超卖；历史 Single-Buy 分化（-10%/-20%/-6%），降级为小仓"

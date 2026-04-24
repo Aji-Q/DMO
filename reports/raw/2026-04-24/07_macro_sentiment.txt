@@ -1,0 +1,41 @@
+/opt/anaconda3/lib/python3.12/site-packages/pandas/core/computation/expressions.py:22: UserWarning: Pandas requires version '2.10.2' or newer of 'numexpr' (version '2.8.7' currently installed).
+  from pandas.core.computation.check import NUMEXPR_INSTALLED
+/opt/anaconda3/lib/python3.12/site-packages/pandas/core/arrays/masked.py:56: UserWarning: Pandas requires version '1.4.2' or newer of 'bottleneck' (version '1.3.7' currently installed).
+  from pandas.core import (
+拉取宏观情绪指标...
+
+指标             最新值     1D%     5D%    20D%     52w分位  说明
+------------------------------------------------------------------------------------------
+VIX          18.76   -2.8%   +7.3%  -31.6%       29%  恐慌指数（SPX 30d IV）
+VVIX         96.38   -2.2%   +1.3%  -22.5%        5%  VIX 的 VIX（恐慌的恐慌）
+VXN          23.37   +0.2%   +8.3%  -21.7%       27%  Nasdaq 100 恐慌指数
+GVZ          26.37   -5.4%   -8.9%  -41.5%        2%  GLD 恐慌指数（黄金隐波）
+HYG          80.51   +0.2%   -0.2%   +2.5%       97%  高收益债 ETF
+LQD         109.68   +0.1%   -0.3%   +2.1%       57%  投资级债 ETF
+TLT          86.69   +0.2%   -0.4%   +1.1%       40%  20Y+ 国债
+SHY          82.58   +0.1%   -0.1%   +0.7%       89%  1-3Y 国债
+SPY         713.65   +0.7%   +0.5%  +10.6%      100%  S&P 500
+IWM         277.54   +0.7%   +0.6%  +12.2%      100%  Russell 2000 小盘
+QQQ         663.61   +1.9%   +2.3%  +15.7%      100%  Nasdaq 100
+XLK         160.22   +2.8%   +3.8%  +20.9%      100%  科技板块
+XLE          56.37   -1.1%   +2.5%   -8.4%       57%  能源板块
+XLU          46.13   +0.1%   -0.1%   +1.8%       54%  公用事业（防御）
+UUP          27.47   -0.2%   +0.4%   -1.2%       62%  美元指数 ETF
+GLD         434.00   +0.7%   -2.7%   +8.3%       25%  黄金
+USO         131.26   -2.6%  +13.1%  +11.9%       94%  原油
+
+派生比率:
+  HYG/LQD = 0.7340（信用利差代理，下降=信用利好）
+  LQD 5D - HYG 5D = -0.15%（>1% 提示信用利差走阔）
+  TLT/SHY = 1.0498（收益率曲线代理，下降=短期 > 长期 = 倒挂）
+  QQQ 20D - SPY 20D = +5.03%（>0 = 科技相对强势）
+  IWM 20D - SPY 20D = +1.54%（>0 = 小盘相对强势 = 风险偏好高）
+
+=== 当前风险环境: 🟡 Neutral ===
+  无明显 Risk ON/OFF 信号。按正常 SOP 执行，所有操作都要配合止损。
+
+规则（供 DMO agent 整合进周报）:
+  🟢 Risk ON  → 追涨安全，多头持仓可加，对冲可减
+  🟡 Neutral  → 正常 SOP 执行，标配风控
+  🟠 Caution  → 暂缓加仓，监控止损
+  🔴 Risk OFF → 减仓多头，提高现金，加仓 SCHD/GLD

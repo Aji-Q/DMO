@@ -1,10 +1,10 @@
 Manager               Filed                 NVDA           SPY          AAPL          META           TSM           CVX           GLD          SCHD            MU           OXY           AMD
 --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-Berkshire (Buffett)   2026-02-17               —             —   227.9M v-4%             —             —   130.2M ^+7%             —             —     1.1M =+0%             —             —
+Berkshire (Buffett)   2026-02-17               —             —   227.9M v-4%             —             —   130.2M ^+7%             —             —             —   264.9M =+0%             —
 Scion (Burry)         2025-11-03        1.0M NEW             —             —          EXIT             —             —             —             —             —             —             —
 Pershing (Ackman)     2026-02-17               —             —             —      2.7M NEW             —             —             —             —             —             —             —
-Appaloosa (Tepper)    2026-02-17      1.7M v-11%             —             —    0.6M ^+62%     1.1M ^+7%             —             —             —             —             —             —
-Bridgewater (Dalio)   2026-02-13      3.9M ^+54%             —    0.3M v-16%    0.2M v-46%             —             —             —             —    1.2M ^+19%             —    0.2M v-21%
-Renaissance           2026-02-12      0.9M v-85%          EXIT     0.1M v-7%          EXIT    1.2M v-13%   2.2M ^+424%             —             —   36.7M v-10%             —    0.6M v-23%
-Third Point (Loeb)    2026-02-17       3.0M ^+4%             —             —          EXIT    0.4M v-61%             —             —             —          EXIT             —             —
+Appaloosa (Tepper)    2026-02-17      1.7M v-11%             —             —    0.6M ^+62%     1.1M ^+7%             —             —             —   1.8M ^+250%             —    0.3M v-66%
+Bridgewater (Dalio)   2026-02-13      3.9M ^+54%    4.5M ^+74%    0.3M v-16%    0.2M v-46%             —             —             —             — 0.9M ^+52355%             —     1.7M v-8%
+Renaissance           2026-02-12      0.9M v-85%      0.1M NEW          EXIT          EXIT    1.2M v-13%   2.2M ^+424%    0.1M v-22%          EXIT   3.0M ^+151%    0.4M v-79%   1.3M ^+142%
+Third Point (Loeb)    2026-02-17       3.0M ^+4%          EXIT             —          EXIT    0.4M v-61%             —             —             —             —             —             —
 Tiger Global          2026-02-17      11.0M v-6%             —             —     2.8M v-2%    3.7M v-19%             —             —             —             —             —             —
